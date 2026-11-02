@@ -20,6 +20,15 @@ const RatingStars = ({ rating }) => {
   return <div className="flex text-yellow-500">{stars}</div>;
 };
 
+// Helper to get correct image source whether it is an external URL or local file
+const getImageSrc = (photo) => {
+  if (!photo) return '';
+  if (photo.startsWith('http://') || photo.startsWith('https://')) {
+    return photo;
+  }
+  return `/api/image/download/${photo}`;
+};
+
 const TrustedSection = ({ homecard1, homecard2 }) => {
   if (!homecard1?.length || !homecard2?.length) return null;
 
@@ -52,7 +61,7 @@ const TrustedSection = ({ homecard1, homecard2 }) => {
               </div>
               {firstCard.photo?.[0] && (
                 <img
-                  src={`/api/image/download/${firstCard.photo?.[0]}`}
+                  src={getImageSrc(firstCard.photo[0])}
                   alt={firstCard.photoAlt?.[0] || "company logos"}
                   loading="lazy"
                   className="w-32 sm:w-40 md:w-48 h-auto sm:absolute sm:top-0 sm:right-0 sm:-translate-y-4 sm:translate-x-4"
@@ -84,7 +93,7 @@ const TrustedSection = ({ homecard1, homecard2 }) => {
               </div>
               {secondCard.photo?.[0] && (
                 <img
-                  src={secondCard.photo[0]}
+                  src={getImageSrc(secondCard.photo[0])}
                   alt={secondCard.photoAlt?.[0] || "reviews"}
                   loading="lazy"
                   className="w-32 sm:w-40 md:w-44 h-auto sm:absolute sm:top-0 sm:right-0 sm:-translate-y-4 sm:translate-x-4"

@@ -80,7 +80,7 @@ exports.createJobApplication = async (req, res) => {
 // Get all job applications
 exports.getJobApplications = async (req, res) => {
   try {
-    const jobApplications = await JobApplication.find();
+    const jobApplications = await JobApplication.find().sort({ createdAt: -1, _id: -1 });
     res.status(200).json(jobApplications);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching job applications', error: err.message });

@@ -5,24 +5,36 @@ const fs = require('fs').promises;
 
 router.get('/download/:filename', async (req, res) => {
     const { filename } = req.params;
-    const filePath = path.join(__dirname, '../images', filename);
+    const candidates = [
+        path.join(__dirname, '../images', filename),
+        path.join(__dirname, '../logos', filename),
+        path.join(__dirname, '../uploads', filename)
+    ];
 
-    try {
-        // Check if file exists before attempting to download
-        await fs.access(filePath);
-        
-        res.download(filePath, (err) => {
-            if (err && !res.headersSent) {
-                console.error('Download error:', err);
-                res.status(500).json({ message: 'File download failed' });
-            }
-        });
-    } catch (error) {
-        if (!res.headersSent) {
-            console.error('File access error:', error);
-            res.status(404).json({ message: 'File not found' });
+    let foundPath = null;
+    for (const p of candidates) {
+        try {
+            await fs.access(p);
+            foundPath = p;
+            break;
+        } catch {
+            // continue checking next directory
         }
     }
+
+    if (!foundPath) {
+        if (!res.headersSent) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+        return;
+    }
+
+    res.download(foundPath, (err) => {
+        if (err && !res.headersSent) {
+            console.error('Download error:', err);
+            res.status(500).json({ message: 'File download failed' });
+        }
+    });
 });
 
 module.exports = router;

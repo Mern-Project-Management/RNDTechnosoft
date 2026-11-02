@@ -35,7 +35,7 @@ exports.addEmail = async (req, res) => {
 // GET: Retrieve all subscribed emails
 exports.getAllEmails = async (req, res) => {
     try {
-        const emails = await Newsletter.find();
+        const emails = await Newsletter.find().sort({ createdAt: -1, _id: -1 });
         res.status(200).json(emails);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });

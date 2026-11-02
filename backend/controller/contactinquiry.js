@@ -498,7 +498,7 @@ exports.getCountsAndData = async (req, res) => {
                 { gclid: { $exists: true, $ne: '' } },
                 { gcid_source: { $exists: true, $ne: '' } }
             ]
-        });
+        }).sort({ createdAt: -1, _id: -1 });
 
         const dataWithoutFields = await ContactInquiry.find({
             $nor: [
@@ -509,9 +509,9 @@ exports.getCountsAndData = async (req, res) => {
                 { gclid: { $exists: true, $ne: '' } },
                 { gcid_source: { $exists: true, $ne: '' } }
             ]
-        });
+        }).sort({ createdAt: -1, _id: -1 });
 
-        const inquiries = await ContactInquiry.find();
+        const inquiries = await ContactInquiry.find().sort({ createdAt: -1, _id: -1 });
 
         res.status(200).json({
             totalCount,

@@ -99,7 +99,7 @@ const getPopupInquiries = async (req, res) => {
             { gclid: { $exists: true, $ne: '' } },
             { gcid_source: { $exists: true, $ne: '' } }
         ]
-    });
+    }).sort({ createdAt: -1, _id: -1 });
 
     const dataWithoutFields = await PopupInquiry.find({
         $nor: [
@@ -110,9 +110,9 @@ const getPopupInquiries = async (req, res) => {
             { gclid: { $exists: true, $ne: '' } },
             { gcid_source: { $exists: true, $ne: '' } }
         ]
-    });
+    }).sort({ createdAt: -1, _id: -1 });
 
-    const inquiries = await PopupInquiry.find();
+    const inquiries = await PopupInquiry.find().sort({ createdAt: -1, _id: -1 });
 
     res.status(200).json({
         totalCount,

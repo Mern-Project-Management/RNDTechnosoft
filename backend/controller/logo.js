@@ -64,10 +64,26 @@ const deleteLogo = async (req, res) => {
 // Download an image
 const downloadLogo = (req, res) => {
   const { filename } = req.params;
-  const filePath = path.join(__dirname, '../logos', filename);
+  const candidates = [
+    path.join(__dirname, '../logos', filename),
+    path.join(__dirname, '../images', filename),
+    path.join(__dirname, '../uploads', filename)
+  ];
 
-  res.download(filePath, (err) => {
-    if (err) {
+  let foundPath = null;
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      foundPath = p;
+      break;
+    }
+  }
+
+  if (!foundPath) {
+    return res.status(404).json({ message: 'File not found' });
+  }
+
+  res.download(foundPath, (err) => {
+    if (err && !res.headersSent) {
       console.error(err);
       res.status(500).json({ message: 'File download failed' });
     }

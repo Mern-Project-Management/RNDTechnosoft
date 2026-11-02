@@ -409,7 +409,7 @@ exports.getCountsAndData = async (req, res) => {
         { gclid: { $exists: true, $ne: '' } },
         { gcid_source: { $exists: true, $ne: '' } }
       ]
-    });
+    }).sort({ createdAt: -1, _id: -1 });
 
     const dataWithoutFields = await CareerInquiry.find({
       $nor: [
@@ -420,9 +420,9 @@ exports.getCountsAndData = async (req, res) => {
         { gclid: { $exists: true, $ne: '' } },
         { gcid_source: { $exists: true, $ne: '' } }
       ]
-    });
+    }).sort({ createdAt: -1, _id: -1 });
 
-    const inquiries = await CareerInquiry.find();
+    const inquiries = await CareerInquiry.find().sort({ createdAt: -1, _id: -1 });
 
     res.status(200).json({
       totalCount,
@@ -470,7 +470,7 @@ exports.getCountsAndData = async (req, res) => {
 
 // exports.getAllCareerInquiries = async (req, res) => {
 //   try {
-//     const inquiries = await CareerInquiry.find();
+//     const inquiries = await CareerInquiry.find().sort({ createdAt: -1, _id: -1 });
 
 //     res.status(200).json({
 //       success: true,
