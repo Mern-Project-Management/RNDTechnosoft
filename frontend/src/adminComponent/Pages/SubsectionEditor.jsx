@@ -392,21 +392,27 @@ const SubsectionsComponent = ({
                 <div key={index} className="border p-4 mb-2 flex flex-col items-center">
                   <h4 className="font-semibold mb-2 text-center">{sub.title}</h4>
 
-                  {sub.photo && (
-                    sub.photo.endsWith(".webm") ? (
+                  {sub.photo && (() => {
+                    const mediaUrl = sub.photo.startsWith('http://') || sub.photo.startsWith('https://')
+                      ? sub.photo
+                      : `/api/image/download/${sub.photo}`;
+                    const cleanUrl = sub.photo.split('?')[0].toLowerCase();
+                    const isVideo = cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.ogg') || cleanUrl.includes('ik-video') || cleanUrl.includes('.webm') || cleanUrl.includes('.mp4');
+
+                    return isVideo ? (
                       <video
-                        src={`/api/image/download/${sub.photo}`}
+                        src={mediaUrl}
                         controls
                         className="w-full h-48 object-contain mb-2"
                       />
                     ) : (
                       <img
-                        src={`/api/image/download/${sub.photo}`}
+                        src={mediaUrl}
                         alt={sub.photoAlt}
                         className="w-full h-48 object-cover mb-2"
                       />
-                    )
-                  )}
+                    );
+                  })()}
 
                   <div className="flex gap-2 mt-2">
                     <button

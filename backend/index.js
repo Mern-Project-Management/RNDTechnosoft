@@ -1,3 +1,13 @@
+require('dotenv').config();
+const dns = require('dns');
+
+// Configure DNS servers (resolves MongoDB Atlas querySrv ECONNREFUSED/ENOTFOUND issues)
+if (process.env.DNS_SERVERS) {
+    dns.setServers(process.env.DNS_SERVERS.split(',').map(s => s.trim()));
+} else {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,8 +17,7 @@ const { generateAllSitemaps } = require('./routes/mySitemap');
 const { exportAndBackupAllCollectionsmonthly } = require('./controller/Backup');
 const fs = require('fs').promises;
 const compression = require('compression');
-const cookieParser = require('cookie-parser'); 
-require('dotenv').config();
+const cookieParser = require('cookie-parser');
 const generateMetaTags = require('./middleware/metaTagInfo');
 const app = express();
 app.use(cookieParser()); 

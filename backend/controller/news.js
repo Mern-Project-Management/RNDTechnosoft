@@ -296,13 +296,13 @@ const getLatestBlogs = async (req, res) => {
 
     // Check if slug is provided
     if (slug) {
-      // Fetch blogs filtered by service category (slug)
-      blogs = await News.find({ servicecategories: slug })
+      // Fetch blogs filtered by service category (slug) and active status
+      blogs = await News.find({ servicecategories: slug, status: 'active' })
         .sort({ date: -1 })  // Sort by date in descending order
         .limit(5);           // Limit to the latest 5 blogs
     } else {
-      // If no slug is provided, fetch all blogs
-      blogs = await News.find()
+      // If no slug is provided, fetch all active blogs
+      blogs = await News.find({ status: 'active' })
         .sort({ date: -1 })  // Sort by date in descending order
         .limit(5);           // Limit to the latest 5 blogs
     }

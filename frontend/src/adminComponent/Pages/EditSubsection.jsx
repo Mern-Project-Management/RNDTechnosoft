@@ -129,7 +129,9 @@ const EditSubsectionForm = ({ subsection, contentId, onEditCancel, onSubsectionU
   };
 
   const isVideoFile = (filename) => {
-    return filename && (filename.endsWith('.webm') || filename.endsWith('.mp4') || filename.endsWith('.ogg'));
+    if (!filename) return false;
+    const cleanUrl = filename.split('?')[0].toLowerCase();
+    return cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.ogg') || cleanUrl.includes('ik-video') || cleanUrl.includes('.webm') || cleanUrl.includes('.mp4');
   };
 
   return (
@@ -206,13 +208,13 @@ const EditSubsectionForm = ({ subsection, contentId, onEditCancel, onSubsectionU
                 ) : currentMedia ? (
                   isVideoFile(currentMedia) ? (
                     <video
-                      src={`/api/image/download/${currentMedia}`}
+                      src={currentMedia.startsWith('http://') || currentMedia.startsWith('https://') ? currentMedia : `/api/image/download/${currentMedia}`}
                       controls
                       className="max-w-full h-auto max-h-48 mx-auto"
                     />
                   ) : (
                     <img
-                      src={`/api/image/download/${currentMedia}`}
+                      src={currentMedia.startsWith('http://') || currentMedia.startsWith('https://') ? currentMedia : `/api/image/download/${currentMedia}`}
                       alt={altText || 'Current media'}
                       className="max-w-full h-auto max-h-48 mx-auto"
                     />
