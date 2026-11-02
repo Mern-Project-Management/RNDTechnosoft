@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Download, Loader2, Info } from "lucide-react"
+import { Download, Loader2, Info } from "lucide-react";
+import InquiryTabs from "../../adminComponent/InquiryTabs";
 
 export default function JobApplicationsTable() {
   const [applications, setApplications] = useState([])
@@ -139,14 +140,18 @@ export default function JobApplicationsTable() {
 
   if (applications.length === 0) {
     return (
-      <div className="bg-white shadow-md rounded-lg p-6 text-center">
+      <div className="container mx-auto p-4">
+        <InquiryTabs />
+        <div className="bg-white shadow-md rounded-lg p-6 text-center">
         <p className="text-gray-500">No job applications found.</p>
+      </div>
       </div>
     )
   }
 
   return (
-    <>
+    <div className="container mx-auto p-4">
+      <InquiryTabs />
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
           <h2 className="text-lg font-semibold text-white">Job Applications</h2>
@@ -272,7 +277,7 @@ export default function JobApplicationsTable() {
           onDownload={handleDownload}
         />
       )}
-    </>
+    </div>
   )
 }
 

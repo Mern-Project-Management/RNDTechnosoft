@@ -11,6 +11,7 @@ import {
 
 import axios from "axios";
 import UseAnimations from "react-useanimations";
+import InquiryTabs from "../InquiryTabs";
 
 const Inquiry = () => {
   const [inquiries, setInquiries] = useState([]);

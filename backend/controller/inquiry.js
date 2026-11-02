@@ -238,7 +238,11 @@ const UpdateInquirues = async (req, res) => {
 
 const deleteInquiries = async (req, res) => {
   try {
-    const deletedInquiry = await Inquiry.findByIdAndDelete(req.query.id);
+    const id = req.query.id || req.params.id || (req.body && req.body.id);
+    if (!id) {
+      return res.status(400).json({ message: 'Inquiry ID is required' });
+    }
+    const deletedInquiry = await Inquiry.findByIdAndDelete(id);
     if (!deletedInquiry) {
       return res.status(404).json({ message: 'Inquiry not found' });
     }

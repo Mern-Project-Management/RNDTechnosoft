@@ -392,6 +392,7 @@ function App() {
                   <Route path="/testimonials/createTestimonials/:categoryId/:subcategoryId" element={<CreateTestimonialsSub />} />
                   <Route path="/testimonials/createTestimonials/:categoryId/:subcategoryId/:subsubcategoryId" element={<CreateTestimonialsSubSub />} />
                   <Route path="/popup-inquiry" element={<PopupInquiry />} />
+                  <Route path="/all-inquiries" element={<PopupInquiry />} />
                   <Route path="/hero-inquiry" element={<HerosectionInquiry />} />
                   <Route path="/testimonials/editTestimonials/:id" element={<EditTestimonials />} />
                   <Route path="/faq" element={<MainFaqSection />} />
@@ -469,6 +470,7 @@ function App() {
                   <Route path="/contactinfo/createContactinfo" element={<CreateContactInfo />} />
                   <Route path="/contactinfo/editContactinfo/:id" element={<EditContactInfo />} />
                   <Route path="/conatctinquiries" element={<ContactInquiry />} />
+                  <Route path="/inquiries" element={<Navigate to="/popup-inquiry" replace />} />
                   <Route path="/managesectionvisibility" element={<ManageSectionVisibility />} />
                   {/* made for me  */}
                   <Route path="/homehero" element={<HomeHerosection />} />

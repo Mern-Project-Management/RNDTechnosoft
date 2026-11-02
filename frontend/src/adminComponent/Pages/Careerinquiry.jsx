@@ -9,6 +9,7 @@ import loading from "react-useanimations/lib/loading";
 import Modal from 'react-modal';
 import { debounce } from 'lodash';
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import InquiryTabs from "../InquiryTabs";
 
 Modal.setAppElement('#root');
 

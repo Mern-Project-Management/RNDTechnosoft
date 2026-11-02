@@ -1,13 +1,18 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useTable, useSortBy } from "react-table";
-import { FaEdit, FaTrashAlt, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaTrashAlt, FaArrowUp, FaArrowDown, FaSearch } from "react-icons/fa";
 import axios from 'axios';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import UseAnimations from "react-useanimations";
-import loading from "react-useanimations/lib/loading";
+import loadingAnim from "react-useanimations/lib/loading";
+import InquiryTabs from "../InquiryTabs";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 const Inquiry = () => {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [totalCount, setTotalCount] = useState(0);
@@ -15,21 +20,34 @@ const Inquiry = () => {
   const [countWithoutFields, setCountWithoutFields] = useState(0);
   const [dataWithFields, setDataWithFields] = useState([]);
   const [dataWithoutFields, setDataWithoutFields] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await axios.get(`/api/inquiries/getInquiries`, { withCredentials: true });
-      const { totalCount, countWithFields, countWithoutFields, dataWithFields, dataWithoutFields, inquiries } = response.data;
+      const response = await axios.get('/api/inquiries/getInquiries', { withCredentials: true });
+      const {
+        totalCount = 0,
+        countWithFields = 0,
+        countWithoutFields = 0,
+        dataWithFields = [],
+        dataWithoutFields = [],
+        inquiries = [],
+      } = response.data || {};
 
       setTotalCount(totalCount);
       setCountWithFields(countWithFields);
       setCountWithoutFields(countWithoutFields);
-      setDataWithFields(dataWithFields);
-      setDataWithoutFields(dataWithoutFields);
-      setInquiries(inquiries);
-    } catch (error) {
-      console.error(error);
+      setDataWithFields(Array.isArray(dataWithFields) ? dataWithFields : []);
+      setDataWithoutFields(Array.isArray(dataWithoutFields) ? dataWithoutFields : []);
+      setInquiries(Array.isArray(inquiries) ? inquiries : []);
+    } catch (err) {
+      console.error('Error fetching inquiries:', err);
+      const msg = err.response?.data?.message || err.message || 'Unknown error';
+      setError(`Failed to fetch inquiries: ${msg}`);
+      toast.error(`Failed to fetch inquiries: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -43,62 +61,154 @@ const Inquiry = () => {
     setSelectedCategory(e.target.value);
   };
 
+  const handleDeleteClick = (item) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedItem?._id) {
+      toast.error("No inquiry selected for deletion");
+      setIsModalOpen(false);
+      return;
+    }
+    try {
+      await axios.delete(`/api/inquiries/deleteInquiries?id=${selectedItem._id}`, { withCredentials: true });
+      toast.success("Inquiry deleted successfully!");
+      await fetchData();
+    } catch (err) {
+      console.error("Error deleting inquiry:", err);
+      const msg = err.response?.data?.message || err.message || 'Unknown error';
+      toast.error(`Failed to delete inquiry: ${msg}`);
+    } finally {
+      setIsModalOpen(false);
+      setSelectedItem(null);
+    }
+  };
+
+  // Filter by category AND search keyword
   const filteredData = useMemo(() => {
+    let baseData = [];
     switch (selectedCategory) {
       case "GPM":
-        return dataWithFields || []; 
+        baseData = dataWithFields;
+        break;
       case "SEO":
-        return dataWithoutFields || [];
+        baseData = dataWithoutFields;
+        break;
       default:
-        return inquiries || [];
+        baseData = inquiries;
     }
-  }, [selectedCategory, dataWithFields, dataWithoutFields, inquiries]);
+
+    if (!Array.isArray(baseData)) return [];
+    if (!searchTerm.trim()) return baseData;
+
+    const term = searchTerm.toLowerCase().trim();
+    return baseData.filter((item) => {
+      const fn = (item.firstname || "").toLowerCase();
+      const ln = (item.lastname || "").toLowerCase();
+      const fullName = `${fn} ${ln}`.trim();
+      const email = (item.email || "").toLowerCase();
+      const phone = (item.mobileNo || item.phone || "").toLowerCase();
+      const comp = (item.companysize || "").toLowerCase();
+      const topic = (item.topic || "").toLowerCase();
+      const msg = (item.message || "").toLowerCase();
+
+      return (
+        fullName.includes(term) ||
+        email.includes(term) ||
+        phone.includes(term) ||
+        comp.includes(term) ||
+        topic.includes(term) ||
+        msg.includes(term)
+      );
+    });
+  }, [selectedCategory, dataWithFields, dataWithoutFields, inquiries, searchTerm]);
 
   const columns = useMemo(
     () => [
       {
-        Header: "ID",
+        Header: "#",
         accessor: "_id",
-        Cell: ({ row }) => <div>{row.index + 1}</div>,
+        Cell: ({ row }) => (
+          <span className="font-semibold text-gray-500">{row.index + 1}</span>
+        ),
+        disableSortBy: true,
       },
       {
-        Header: "First Name",
+        Header: "Name",
         accessor: "firstname",
-      },
-      {
-        Header: "Last Name",
-        accessor: "lastname",
+        Cell: ({ row }) => {
+          const fn = row.original.firstname || "";
+          const ln = row.original.lastname || "";
+          const full = `${fn} ${ln}`.trim() || row.original.name || "-";
+          return (
+            <div className="font-medium text-gray-900">{full}</div>
+          );
+        },
       },
       {
         Header: "Email",
         accessor: "email",
+        Cell: ({ value }) => (
+          <a href={`mailto:${value}`} className="text-blue-600 hover:underline">
+            {value || "-"}
+          </a>
+        ),
       },
       {
         Header: "Mobile No",
         accessor: "mobileNo",
+        Cell: ({ row }) => row.original.mobileNo || row.original.phone || "-",
       },
       {
         Header: "Company Size",
         accessor: "companysize",
+        Cell: ({ value }) => (
+          <span className="px-2.5 py-1 text-xs rounded-full bg-gray-100 text-gray-700 font-medium">
+            {value || "N/A"}
+          </span>
+        ),
       },
       {
         Header: "Active Users",
         accessor: "activeuser",
+        Cell: ({ value }) => value || "-",
       },
       {
         Header: "Topic",
         accessor: "topic",
+        Cell: ({ value }) => (
+          <span className="px-2.5 py-1 text-xs rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200">
+            {value || "General"}
+          </span>
+        ),
       },
       {
         Header: "Message",
         accessor: "message",
+        Cell: ({ value }) => (
+          <div className="max-w-xs break-words text-gray-600 text-xs">
+            {value || "-"}
+          </div>
+        ),
       },
       {
-        Header: "Options",
+        Header: "Actions",
         Cell: ({ row }) => (
-          <div className="flex gap-4">
-            <button className="text-red-500 hover:text-red-700 transition" onClick={() => deleteInquiry(row.original._id)}>
-              <FaTrashAlt />
+          <div className="flex items-center justify-center">
+            <button
+              type="button"
+              className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-colors duration-150"
+              title="Delete this inquiry"
+              onClick={() => handleDeleteClick(row.original)}
+            >
+              <FaTrashAlt size={16} />
             </button>
           </div>
         ),
@@ -122,117 +232,176 @@ const Inquiry = () => {
     useSortBy
   );
 
-  const deleteInquiry = async (id) => {
-    try {
-      await axios.delete(`/api/inquiries/deleteInquiry?id=${id}`, { withCredentials: true });
-      fetchData();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4 flex justify-center items-center h-96">
+        <UseAnimations animation={loadingAnim} size={56} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-4">
+        <ToastContainer />
+        <InquiryTabs />
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 ">
-      <h1 className="text-xl font-bold text-gray-700 font-serif uppercase mb-4">Inquiries</h1>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300"
-        />
-      </div>
-      <div className="grid grid-cols-3 gap-12 mt-8">
-        <div className="rounded bg-gradient-to-r from-red-400 to-red-600 p-4 flex justify-between items-center px-12 ">
-          <h3 className="font-semibold text-[45px] text-white font-serif">All</h3>
-          <button className="font-bold text-[40px] text-black bg-white w-16 h-16 flex items-center justify-center rounded shadow">{totalCount}</button>
+    <div className="container mx-auto p-4 min-h-screen">
+      <ToastContainer position="top-right" autoClose={3000} />
+      <InquiryTabs />
+
+      {/* Top Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="rounded-xl bg-gradient-to-r from-red-500 to-red-600 p-5 text-white shadow-md flex items-center justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-wider text-red-100 font-semibold">Total Inquiries</p>
+            <h3 className="text-3xl font-extrabold mt-1">{totalCount}</h3>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center font-bold text-xl text-white">
+            {totalCount}
+          </div>
         </div>
-        <div className="rounded bg-gradient-to-r from-blue-400 to-blue-600 p-4 flex justify-between items-center px-12">
-          <h3 className="font-semibold text-[45px] text-white font-serif">PM</h3>
-          <p className="font-bold text-[40px] text-black bg-white w-16 h-16 flex items-center justify-center rounded shadow">{countWithFields}</p>
+
+        <div className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 p-5 text-white shadow-md flex items-center justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-wider text-blue-100 font-semibold">GPM (Paid Ads)</p>
+            <h3 className="text-3xl font-extrabold mt-1">{countWithFields}</h3>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center font-bold text-xl text-white">
+            {countWithFields}
+          </div>
         </div>
-        <div className="rounded bg-gradient-to-r from-yellow-400 to-yellow-600 p-4 flex justify-between items-center px-12">
-          <h3 className="font-semibold text-[45px] text-white font-serif">SEO</h3>
-          <p className="font-bold text-[40px] text-black bg-white w-16 h-16 flex items-center justify-center rounded shadow">{countWithoutFields}</p>
-        </div>
-      </div>
-      <div className="flex justify-between mt-8">
-        <h2 className="text-md font-semibold mb-4">Manage Inquiries</h2>
-        <div className="relative">
-          <select
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            className="appearance-none bg-white border border-gray-300 hover:border-gray-500 px-4 py-2 w-32 rounded-md focus:outline-none focus:border-blue-500 transition duration-300"
-          >
-            <option value="All">ALL</option>
-            <option value="GPM">PM</option>
-            <option value="SEO">SEO</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path d="M9.293 14.707a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L9 12.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4z" />
-            </svg>
+
+        <div className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-white shadow-md flex items-center justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-wider text-amber-100 font-semibold">SEO (Organic)</p>
+            <h3 className="text-3xl font-extrabold mt-1">{countWithoutFields}</h3>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center font-bold text-xl text-white">
+            {countWithoutFields}
           </div>
         </div>
       </div>
-      {loading ? (
-        <div className="flex justify-center"><UseAnimations animation={loading} size={56} /></div>
-      ) : (
-        <>
-          {inquiries && inquiries.length === 0 ? (
-            <div className="flex justify-center items-center">
-              <iframe className="w-96 h-96" src="https://lottie.host/embed/1ce6d411-765d-4361-93ca-55d98fefb13b/AonqR3e5vB.json"></iframe>
+
+      {/* Search & Filter Header */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="relative flex-1">
+          <FaSearch className="absolute left-3.5 top-3.5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by name, email, phone, topic, or message..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Filter Source:</span>
+          <select
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+          >
+            <option value="All">All Sources</option>
+            <option value="GPM">GPM (Paid Ads)</option>
+            <option value="SEO">SEO (Organic)</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Table Container */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          {filteredData.length === 0 ? (
+            <div className="p-12 text-center text-gray-500">
+              <p className="text-lg font-medium">No inquiries found</p>
+              <p className="text-sm text-gray-400 mt-1">Try adjusting your search or category filter</p>
             </div>
           ) : (
-            <table className="w-full mt-4 border-collapse " {...getTableProps()}>
-              <thead className="bg-slate-700 hover:bg-slate-800 text-white">
-                {headerGroups.map((headerGroup) => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(column.getSortByToggleProps())}
-                        className="py-2 px-4 border-b border-gray-300 cursor-pointer"
-                      >
-                        <div className="flex items-center uppercase font-serif gap-2">
-                          <span>{column.render("Header")}</span>
-                          {column.canSort && (
-                            <span className="ml-1">
-                              {column.isSorted ? (
-                                column.isSortedDesc ? (
-                                  <FaArrowDown />
-                                ) : (
-                                  <FaArrowUp />
-                                )
-                              ) : (
-                                <FaArrowDown className="text-gray-400" />
+            <table className="w-full text-left border-collapse" {...getTableProps()}>
+              <thead>
+                {headerGroups.map((headerGroup) => {
+                  const { key, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
+                  return (
+                    <tr key={key} {...headerGroupProps} className="bg-slate-800 text-white">
+                      {headerGroup.headers.map((column) => {
+                        const { key: colKey, ...colProps } = column.getHeaderProps(column.getSortByToggleProps());
+                        return (
+                          <th
+                            key={colKey}
+                            {...colProps}
+                            className="py-3 px-4 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:bg-slate-700 transition"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <span>{column.render("Header")}</span>
+                              {column.canSort && (
+                                <span className="text-xs">
+                                  {column.isSorted ? (
+                                    column.isSortedDesc ? (
+                                      <FaArrowDown className="text-blue-400" />
+                                    ) : (
+                                      <FaArrowUp className="text-blue-400" />
+                                    )
+                                  ) : (
+                                    <FaArrowDown className="text-gray-500" />
+                                  )}
+                                </span>
                               )}
-                            </span>
-                          )}
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
+                            </div>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </thead>
-              <tbody {...getTableBodyProps()}>
+              <tbody {...getTableBodyProps()} className="divide-y divide-gray-200 text-sm">
                 {rows.map((row) => {
                   prepareRow(row);
+                  const { key, ...rowProps } = row.getRowProps();
                   return (
-                    <tr {...row.getRowProps()} className="border-b border-gray-300">
-                      {row.cells.map((cell) => (
-                        <td {...cell.getCellProps()} className="py-2 px-4">
-                          {cell.render("Cell")}
-                        </td>
-                      ))}
+                    <tr
+                      key={key}
+                      {...rowProps}
+                      className="hover:bg-blue-50/50 transition-colors duration-150"
+                    >
+                      {row.cells.map((cell) => {
+                        const { key: cellKey, ...cellProps } = cell.getCellProps();
+                        return (
+                          <td key={cellKey} {...cellProps} className="py-3.5 px-4 text-gray-700">
+                            {cell.render("Cell")}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           )}
-        </>
-      )}
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={confirmDelete}
+        itemType="inquiry"
+        itemName={
+          selectedItem
+            ? `${selectedItem.firstname || selectedItem.name || ''} (${selectedItem.email || 'Inquiry'})`
+            : 'Inquiry'
+        }
+      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import UseAnimations from "react-useanimations";
 import loading from "react-useanimations/lib/loading";
 import DeleteConfirmationModal from "../DeleteConfirmationModal";
+import InquiryTabs from "../../InquiryTabs";
 
 const Inquiry = () => {
   const [inquiries, setInquiries] = useState([]);
@@ -187,6 +188,7 @@ const Inquiry = () => {
     return (
       <div className="container mx-auto p-4">
         <ToastContainer />
+      <InquiryTabs />
         <div className="text-red-500 font-serif text-center">{error}</div>
       </div>
     );

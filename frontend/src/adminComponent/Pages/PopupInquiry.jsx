@@ -4,6 +4,7 @@ import { FaTrashAlt, FaArrowUp, FaArrowDown, FaEye } from "react-icons/fa";
 import axios from 'axios';
 import UseAnimations from "react-useanimations";
 import loading from "react-useanimations/lib/loading";
+import InquiryTabs from "../InquiryTabs";
 
 const Inquiry = () => {
   const [data, setData] = useState({
@@ -292,7 +293,7 @@ const cancelDelete = () => setPendingDelete(null);
 
   return (
     <div className="p-4 overflow-x-auto">
-      <h1 className="text-xl font-bold text-gray-700 font-serif uppercase mb-4">Inquiries</h1>
+      <h1 className="text-xl font-bold text-gray-700 font-serif uppercase mb-4">Popup Inquiries</h1>
 
       <div className="mb-4">
         <input

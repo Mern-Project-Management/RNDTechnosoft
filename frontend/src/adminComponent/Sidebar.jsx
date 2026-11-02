@@ -38,6 +38,7 @@ import {
   Settings,
   Package,
   Headset,
+  Inbox,
   ChartColumn
 } from 'lucide-react';
 
@@ -66,15 +67,13 @@ export default function Sidebar() {
     fetchLogos();
   }, []);
 
-  const sidebarData = [
+    const sidebarData = [
     { title: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/dashboard" },
     {
       title: "Home", icon: <Home size={20} />, submenu: [
         { title: "Banner", icon: <Flag size={20} />, path: "/banner" },
         { title: "Hero Section", icon: <Flag size={20} />, path: "/homehero" },
         { title: "Animation", icon: <MessageSquare size={20} />, path: "/homeanimation" },
-
-        // { title: "Testimonials", icon: <MessageSquare size={20} />, path: "/testimonials" },
         { title: "Counter", icon: <Hash size={20} />, path: "/counter" },
         { title: "FAQ", icon: <MessageSquare size={20} />, path: "/faq" },
       ]
@@ -95,25 +94,18 @@ export default function Sidebar() {
         { title: "Technology List & Add Form", icon: <MailOpen size={20} />, path: "/technology" },
         { title: "Add Technology Content Sections", icon: <MailOpen size={20} />, path: "/manage-tech-sec" },
         { title: "Technology Sections Data List", icon: <MailOpen size={20} />, path: "/tech-sec-data" }
-
       ]
     },
     {
       title: "Career", icon: <GraduationCap size={20} />, submenu: [
-        { title: "Career Options", icon: <MailOpen size={20} />, path: "/careeroption" },
-        { title: "Career Inquiry", icon: <MessagesSquare size={20} />, path: "/careerinquiry" }
+        { title: "Career Options", icon: <MailOpen size={20} />, path: "/careeroption" }
       ]
     },
-    { title: "Hero Section Inquiry", icon: <MessagesSquare size={20} />, path: "/hero-inquiry" },
-    { title: "Popup Inquiry", icon: <MessagesSquare size={20} />, path: "/popup-inquiry" },
     {
       title: "Services", icon: <Headset size={20} />, submenu: [
         { title: "Create Service Entry", icon: <LayoutGrid size={20} />, path: "/ServiceCategory" },
         { title: "Edit Service Page", icon: <Wrench size={20} />, path: "/services" },
-        // { title: "Logo Design Types", icon: <Wrench size={20} />, path: "/logotype" },
-        // { title: "We Are Experts", icon: <Wrench size={20} />, path: "/we-are-expert" },
         { title: "Why Partner With Us", icon: <Wrench size={20} />, path: "/why-partner-us" },
-        // { title: "Testimonials", icon: <MessageSquare size={20} />, path: "/testimonials" },
         { title: "Card", icon: <Wrench size={20} />, path: "/Card" },
         { title: "Get In Touch", icon: <Wrench size={20} />, path: "/edit-card" },
         { title: "FAQ", icon: <MessageSquare size={20} />, path: "/faq" },
@@ -123,7 +115,7 @@ export default function Sidebar() {
       title: "Hire Talent", icon: <Building2 size={20} />, submenu: [
         { title: "Add Hire Talent", icon: <LayoutGrid size={20} />, path: "/hire-talent-table/add-hire-talent" },
         { title: "Hire Talent", icon: <Wrench size={20} />, path: "/hire-talent-table" },
-         ]
+      ]
     },
     {
       title: "Industries", icon: <Building2 size={20} />, submenu: [
@@ -132,85 +124,55 @@ export default function Sidebar() {
         { title: "Industry Data", icon: <Wrench size={20} />, path: "/industry-data" },
       ]
     },
-    // {
-    //   title: "Packages", icon: <Package size={20} />, submenu: [
-    //     { title: "Categories", icon: <LayoutGrid size={20} />, path: "/PackageCategory" },
-    //     { title: "Packages", icon: <Wrench size={20} />, path: "/package" },
-    //     { title: "Testimonials", icon: <MessageSquare size={20} />, path: "/testimonials" },
-    //     { title: "companies", icon: <Wrench size={20} />, path: "/company-category" },
-    //     { title: "Get In Touch", icon: <Wrench size={20} />, path: "/edit-card" },
-    //     { title: "Template Card", icon: <Wrench size={20} />, path: "/edit-template-card" },
-
-    //     { title: "FAQ", icon: <MessageSquare size={20} />, path: "/faq" },
-    //   ]
-    // },
-
     {
       title: "Portfolio", icon: <Image size={20} />, submenu: [
         { title: "Categories", icon: <LayoutGrid size={20} />, path: "/PortfolioCategory" },
         { title: "Portfolio", icon: <Wrench size={20} />, path: "/portfolio" },
       ]
     },
-
-
-
-
+    {
+      title: "All Inquiries", icon: <Inbox size={20} />, submenu: [
+        { title: "Contact Us Inquiries", icon: <MailOpen size={20} />, path: "/conatctinquiries" },
+        { title: "Popup Inquiries", icon: <MessageSquare size={20} />, path: "/popup-inquiry" },
+        { title: "Hero Section Inquiries", icon: <Flag size={20} />, path: "/hero-inquiry" },
+        { title: "Career Inquiries", icon: <GraduationCap size={20} />, path: "/careerinquiry" },
+        { title: "Job Applications", icon: <FileText size={20} />, path: "/application-req" },
+        { title: "General Inquiries", icon: <Phone size={20} />, path: "/Inquiry" },
+      ]
+    },
     {
       title: "Contact Us", icon: <LayoutDashboard size={20} />, submenu: [
         { title: "Contact Us", icon: <LayoutDashboard size={20} />, path: "/contactinfo" },
-        { title: "ContactUs Inquiries", icon: <LayoutDashboard size={20} />, path: "/conatctinquiries" },
       ]
     },
-
-    // {
-    //   title: "Products", icon: <ShoppingCart size={20} />, submenu: [
-    //     { title: "Categories", icon: <LayoutGrid size={20} />, path: "/ProductCategory" },
-    //     { title: "Benefits", icon: <ShoppingCart size={20} />, path: "/benefits" },
-    //     { title: "Products", icon: <ChartColumn size={20} />, path: "/product" },
-    //   ]
-    // },
-    // { title: "Global Presence", icon: < Globe2 size={20} />, path: "/globalpresence" },
-
     {
       title: "News/Blogs", icon: <Newspaper size={20} />, submenu: [
         { title: "Categories", icon: <LayoutGrid size={20} />, path: "/NewsCategory" },
         { title: "News/Blogs", icon: <NewspaperClip size={20} />, path: "/news" },
       ]
     },
-
     { title: "Extra Pages", icon: <FileText size={20} />, path: "/extrapages" },
     { title: "News Letter", icon: <FileText size={20} />, path: "/newsletter" },
     {
       title: "SEO", icon: <BarChart3 size={20} />, submenu: [
         { title: "Sitemap Generator", icon: <Map size={20} />, path: "/sitemap" },
-        // { title: "Meta Tags Settings", icon: <Code size={20} />, path: "/metadetails" },
         { title: "Static Page Meta", icon: <Code size={20} />, path: "/meta-table" },
         { title: "Google Tag Manager", icon: <Globe size={20} />, path: "/googleSettings" },
         { title: "Menu List", icon: <Code size={20} />, path: "/navbar-data" },
-
-        { title: "Inquiries", icon: <Phone size={20} />, path: "/Inquiry" },
-      ]
-    },
-    {
-      title: "Job Applications", icon: <Newspaper size={20} />, submenu: [
-        { title: "Application Request", icon: <LayoutGrid size={20} />, path: "/application-req" },
-        // { title: "News/Blogs", icon: <NewspaperClip size={20} />, path: "/news" },
       ]
     },
     {
       title: "Settings", icon: <Settings size={20} />, submenu: [
         { title: "Menu Listing", icon: <ListOrdered size={20} />, path: "/menulisting" },
-        { title: "Manage Section Visibility", icon: < Globe2 size={20} />, path: "/managesectionvisibility" },
+        { title: "Manage Section Visibility", icon: <Globe2 size={20} />, path: "/managesectionvisibility" },
         { title: "Manage Theme", icon: <Code size={20} />, path: "/manageTheme" },
         { title: "Footer Settings", icon: <ArrowDown size={20} />, path: "/footer" },
         { title: "Header Settings", icon: <ArrowUp size={20} />, path: "/header" },
         { title: "Manage Logo", icon: <MessageSquare size={20} />, path: "/manageLogo" },
         { title: "Whatsapp Settings", icon: <MessageCircle size={20} />, path: "/whatsappSettings" },
-
         { title: "Database Management", icon: <Database size={20} />, path: "/DatabaseManagement" }
       ]
     }
-
   ];
 
   const handleClickOutside = (event) => {
