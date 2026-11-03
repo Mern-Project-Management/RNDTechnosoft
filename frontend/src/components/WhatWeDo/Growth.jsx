@@ -66,12 +66,12 @@ const ExpertiseComponent = () => {
   }, []);
 
   return (
-    <div id="expertiseComponent" className="flex flex-col items-center justify-center mt-8 md:mt-10 xl:p-0 sm:p-4 md:p-8 mb-16">
+    <div id="expertiseComponent" className="relative z-10 flex flex-col items-center justify-center mt-8 md:mt-10 xl:p-0 sm:p-4 md:p-8 mb-16">
       <h2 className="text-3xl md:text-5xl pb-10 font-serif">{heading}</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 justify-center md:w-[80%]">
         {counters.map((counter, index) => (
           <div key={index} className="flex flex-col items-center justify-center mb-6 md:mb-0 px-4">
-            <img src={counter.image} alt={counter.alt} title={counter.imgtitle} className="w-24 h-24 md:w-28 md:h-28 mb-4" />
+            <img src={counter.image} alt={counter.alt} title={counter.imgtitle} className="w-24 h-24 md:w-28 md:h-28 mb-4 object-contain" />
             <div className="flex  items-center">
             <CountUp start={isCountingStarted ? 0 : null} end={counter.number} duration={3}>
               {({ countUpRef }) => (

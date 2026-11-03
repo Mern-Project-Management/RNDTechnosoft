@@ -37,12 +37,12 @@ const ValuesSection = () => {
     }, []);
 
     return ( 
-        <div className="py-12 px-4 sm:px-6 mt-10 mb-[8rem] lg:px-8 w-full min-h-screen relative">
-            <div className="absolute inset-0  xl:h-[180vh] lg:h-[185vh] md:h-[340vh] 2xl:h-[210vh]">
+        <div className="py-12 pb-24 px-4 sm:px-6 mt-10 mb-16 lg:px-8 w-full relative">
+            <div className="absolute inset-0 w-full h-full -z-0">
                 <img
                     src={bg}
                     alt="Background"
-                    className="w-full h-full  object-fill bg-fill"
+                    className="w-full h-full object-fill pointer-events-none"
                 />
             </div>
             {/* Optional overlay for better text readability */}

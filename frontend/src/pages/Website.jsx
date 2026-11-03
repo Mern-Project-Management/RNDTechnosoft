@@ -81,11 +81,11 @@ export default function Website() {
      
       {/* <PricingSection /> */}
       {/* <DesignProcess /> */}
-    <div className="mt-12">
+      <div className="mt-12">
         <FAQ />
-    </div>
+      </div>
       <GoogleReviewsWidget />
       <LatestBlog />
     </div>
   );
-}   
+}

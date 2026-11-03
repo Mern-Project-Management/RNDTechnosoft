@@ -12,10 +12,12 @@ const GoogleReviewsWidget = () => {
   }, []);
 
   return (
-    <div
-      className="elfsight-app-5da35617-e545-4423-b05a-03c02633a90e"
-      data-elfsight-app-lazy
-    />
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-[65px]">
+      <div
+        className="elfsight-app-5da35617-e545-4423-b05a-03c02633a90e"
+        data-elfsight-app-lazy
+      />
+    </div>
   );
 };
 
