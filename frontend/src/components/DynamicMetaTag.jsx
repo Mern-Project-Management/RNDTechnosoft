@@ -37,6 +37,12 @@ const DynamicMetaTags = () => {
                     axios.get(`/api/logo/getfavicon`, { withCredentials: true }).catch(() => ({ data: null }))
                 ]);
 
+                // Set Google settings & favicon globally for all pages
+                setGoogleSettings(Google_Settings.data || {});
+                if (Favicon.data) {
+                    setFavicon(Favicon.data);
+                }
+
                 // Check service category data
                 const serviceData = Service_Category.data.find(item => item.slug?.toLowerCase() === currentPath);
                 if (serviceData) {
@@ -157,13 +163,6 @@ const DynamicMetaTags = () => {
                     }
                 }
 
-                // Set Google settings
-                setGoogleSettings(Google_Settings.data || {});
-
-                // Set favicon
-                if (Favicon.data) {
-                    setFavicon(Favicon.data);
-                }
             } catch (error) {
                 console.error("Error fetching meta data:", error);
                 setMetaTitle("RND Technosoft - Home");
@@ -272,15 +271,18 @@ const DynamicMetaTags = () => {
 
         // Handle favicon
         if (favicon && favicon.photo) {
-            const existingLink = document.querySelector("link[rel='icon']");
-            if (existingLink) {
-                existingLink.remove();
+            let link = document.querySelector("link[rel='icon']");
+            if (!link) {
+                link = document.createElement("link");
+                link.rel = "icon";
+                document.head.appendChild(link);
             }
-            const link = document.createElement("link");
-            link.rel = "icon";
             link.href = `/api/logo/download/${favicon.photo}`;
-            document.head.appendChild(link);
-            createdTags.push(link);
+            if (favicon.photo.endsWith('.svg')) {
+                link.type = 'image/svg+xml';
+            } else if (favicon.photo.endsWith('.png')) {
+                link.type = 'image/png';
+            }
         }
 
         // Cleanup on unmount

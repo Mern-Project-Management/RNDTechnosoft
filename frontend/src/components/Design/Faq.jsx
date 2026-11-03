@@ -8,7 +8,7 @@ const FAQ = ({serviceSlug}) => {
   const [faqs, setFaqs] = useState([]);
   const [heading, setHeading] = useState("");
   const [subheading, setSubheading] = useState("");
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const answerRefs = useRef([]);
 
@@ -20,7 +20,11 @@ const FAQ = ({serviceSlug}) => {
         const response = await axios.get(
             `/api/faq/getFAQByServiceSlug${serviceSlug ? `?slug=${serviceSlug}` : ""}`
           );
-        setFaqs(response.data.data);
+        const data = response.data.data || [];
+        setFaqs(data);
+        if (data.length > 0) {
+          setOpenIndex(0);
+        }
       } catch (error) {
         console.error("Error fetching FAQ data:", error);
       } finally {
@@ -43,14 +47,14 @@ const FAQ = ({serviceSlug}) => {
   }, [ location.pathname]);
 
   useEffect(() => {
-    if (openIndex !== null) {
+    if (openIndex !== null && answerRefs.current[openIndex]) {
       gsap.fromTo(
         answerRefs.current[openIndex],
         { height: 0, opacity: 0 },
         { height: "auto", opacity: 1, duration: 0.4, ease: "power1.out" }
       );
     }
-  }, [openIndex]);
+  }, [openIndex, faqs]);
 
   const toggleFAQ = (index) => {
     if (openIndex === index) {
